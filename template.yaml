@@ -56,20 +56,21 @@ Resources:
     Properties:
       Code:
         ZipFile: |
-          def handler(event,context):
+          exports.lambdaHandler = async (event,context) => {
             return {
-              'body': 'Hello there {0}'.format(event['requestContext']['identity']['sourceIp']),
+              'body': 'Hello World',
               'headers': {
                 'Content-Type': 'text/plain'
               },
               'statusCode': 200
             }
+          }
       Description: "My function"
       FunctionName: !Sub "${AWS::StackName}-router-function"
-      Handler: "index.handler"
+      Handler: "index.lambdaHandler"
       MemorySize: 128
       Role: !GetAtt "lambdaIAMRole.Arn"
-      Runtime: "python2.7"
+      Runtime: "nodejs8.10"
       Timeout: 10
 
   lambdaApiGatewayInvoke:
