@@ -1,3 +1,18 @@
+function rsp(body) {
+    return {
+        'statusCode': 200,
+        'body': body,
+        'headers': {'Content-Type': 'application/xml'}
+    }
+}
+
+function ok() {
+    return {
+        'statusCode': 200,
+        'body': 'OK'
+    }
+}
+
 /**
  *
  * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
@@ -33,8 +48,65 @@
  * 
  */
 exports.lambdaHandler = async (event, context) => {
-    return {
-        'statusCode': 200,
-        'body': '<?xml version="1.0" encoding="UTF-8"?><Response><Say>Hello Monkey</Say><Play>http://demo.twilio.com/hellomonkey/monkey.mp3</Play></Response>'
+    console.log(JSON.stringify(context))
+    console.log(JSON.stringify(event))
+    if(event.path === '/call') {
+        await makecall(event)
+        return ok()
+    } else if(event.path === '/ambient') {
+        return rsp(ambient())
+    } else if(event.path === '/electronica') {
+        return rsp(electronica())
+    } else if(event.path === '/conference') {
+        return rsp(conference(event))
+    } else {
+        return rsp('<?xml version="1.0" encoding="UTF-8"?><Response><Say>Hello Monkey</Say><Play>http://demo.twilio.com/hellomonkey/monkey.mp3</Play></Response>')
     }
 };
+
+async function makecall(event) {
+    const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
+    const cb = "https://"+event.requestContext.domainName+'/'+event.queryStringParameters.then
+    console.log("CALLBACK: "+cb)
+    console.log("FROM PHONE: "+process.env.TWILIO_PHONE_NUMBER)
+    console.log("TO PHONE: "+event.queryStringParameters.to)
+    const call = await client.calls
+        .create({
+            url: cb,
+            to: event.queryStringParameters.to,
+            from: process.env.TWILIO_PHONE_NUMBER
+        })
+    console.log("Call initiated: "+call.sid)
+}
+
+function ambient(event) {
+    const VoiceResponse = require('twilio').twiml.VoiceResponse
+    const response = new VoiceResponse()
+    response.say('This is the beginning')
+    response.play({}, 'http://com.twilio.music.ambient.s3.amazonaws.com/gurdonark_-_Exurb.mp3')
+    response.play({}, 'http://com.twilio.music.ambient.s3.amazonaws.com/aerosolspray_-_Living_Taciturn.mp3')
+    response.play({}, 'http://com.twilio.music.ambient.s3.amazonaws.com/gurdonark_-_Plains.mp3')
+    response.say('This is the end')
+    return(response.toString())
+}
+
+function electronica(event) {
+    const VoiceResponse = require('twilio').twiml.VoiceResponse
+    const response = new VoiceResponse()
+    response.say('This is the beginning')
+    response.play({}, 'http://com.twilio.music.electronica.s3.amazonaws.com/Kaer_Trouz_-_Seawall_Stepper.mp3')
+    response.play({}, 'http://com.twilio.music.electronica.s3.amazonaws.com/spenceyb_-_O-T-S-H-T_%28Razma_World_IV_Remix%29.mp3')
+    response.play({}, 'http://com.twilio.music.electronica.s3.amazonaws.com/teru_-_110_Downtempo_Electronic_4.mp3')
+    response.say('This is the end')
+    return(response.toString())
+}
+
+function conference(event) {
+    console.log("Sending someone into conference")
+    const VoiceResponse = require('twilio').twiml.VoiceResponse
+    const response = new VoiceResponse()
+    response.dial().conference("MyConference", {
+        startConferenceOnEnter: true
+    })
+    return(response.toString())
+}

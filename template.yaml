@@ -58,14 +58,12 @@ Resources:
         ZipFile: |
           exports.lambdaHandler = async (event,context) => {
             return {
-              'body': 'Hello World',
-              'headers': {
-                'Content-Type': 'text/plain'
-              },
+              'body': '<?xml version="1.0" encoding="UTF-8"?><Response><Say>Hello Monkey</Say><Play>http://demo.twilio.com/hellomonkey/monkey.mp3</Play></Response>',
+              'headers': { 'Content-Type': 'application/xml' },
               'statusCode': 200
             }
           }
-      Description: "My function"
+      Description: "Twilio Callback Handler"
       FunctionName: !Sub "${AWS::StackName}-router-function"
       Handler: "index.lambdaHandler"
       MemorySize: 128
@@ -127,21 +125,11 @@ Resources:
       AccessLogSetting:
         DestinationArn: !GetAtt "gatewayLogGroup.Arn"
         Format: "$context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] \"$context.httpMethod $context.path $context.protocol\" $context.status $context.responseLength $context.requestId"
-#      CacheClusterEnabled: Boolean
-#      CacheClusterSize: String
-#      CanarySetting: CanarySetting
-#      ClientCertificateId: String
       DeploymentId: !Ref apiGatewayDeployment
-#      Description: String
-#      DocumentationVersion: String
       MethodSettings: [{HttpMethod: '*', ResourcePath: '/*', DataTraceEnabled: true, LoggingLevel: INFO, MetricsEnabled: true, ThrottlingBurstLimit: 5000, ThrottlingRateLimit: 10000.0}]
       RestApiId: !Ref "apiGateway"
       StageName: "p"
-#      Tags: 
-#        - Resource Tag
       TracingEnabled: true
-#      Variables:
-#        String: String      
 
   apiGatewayDeployment:
     Type: "AWS::ApiGateway::Deployment"
