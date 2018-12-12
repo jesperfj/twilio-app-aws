@@ -1,21 +1,13 @@
 #!/bin/bash
 
 if [ "$#" -ne 1 ]; then
-  echo "Usage: build lambdaName";
+  echo "Usage: deploy lambdaName";
   exit 1;
 fi
 
-lambda=${1%/}; // # Removes trailing slashes
-echo "Deploying $lambda";
-cd $lambda;
-if [ $? -eq 0 ]; then
-  echo "...."
-else
-  echo "Couldn't cd to directory $lambda. You may have mis-spelled the lambda/directory name";
-  exit 1
-fi
+lambda=$1
+echo "Packaging and deploying current directory to lambda function $lambda";
 
-echo "nmp installing...";
 npm install
 if [ $? -eq 0 ]; then
   echo "done";

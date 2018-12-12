@@ -1,0 +1,2 @@
+#!/bin/bash
+aws lambda update-function-configuration --function-name $1 --environment Variables="{`cat .env | xargs | sed 's/ /,/g'`}"
