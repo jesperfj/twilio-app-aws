@@ -1,0 +1,44 @@
+#!/bin/bash
+source .twilio
+
+if [ -z "$1" ]; then
+  echo "Usage: bin/setup-number <number> [base url]"
+  exit 1
+else
+  number=$1
+  if [ ! -z "$2" ]; then
+    baseurl=$2
+  else  
+    # Assume default stack name
+    baseurl=$(aws cloudformation describe-stacks --query 'Stacks[?StackName==`twilio`].Outputs[0].OutputValue' --output text)
+    if [[ $? -gt 0 || -z $baseurl ]]; then
+        echo "Error getting URL from AWS"
+        exit 1
+    fi
+  fi
+fi
+echo $baseurl
+
+
+
+echo "Updating callback URLs for $number..."
+numbersid=$(curl -s "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/IncomingPhoneNumbers.json" -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN | jq -r ".incoming_phone_numbers[] | select(.phone_number==\"$number\") | .sid")
+
+curl -X POST https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/IncomingPhoneNumbers/$numbersid.json \
+--data-urlencode "AccountSid=$TWILIO_ACCOUNT_SID" \
+--data-urlencode "SmsUrl=$baseurl/sms" \
+--data-urlencode "VoiceUrl=$baseurl/voice" \
+--data-urlencode "SmsFallbackUrl=$baseurl/fallback" \
+--data-urlencode "VoiceFallbackUrl=$baseurl/fallback" \
+--data-urlencode "StatusCallback=$baseurl/status" \
+-u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN
+echo "Done."
+
+if [ -z "$TWILIO_PHONE_NUMBER"]; then
+  echo "It doesn't look like you have a TWILIO_PHONE_NUMBER in .twilio. Adding your new number"
+  echo "TWILIO_PHONE_NUMBER=$number" >> .twilio
+  echo "Setting environment variable TWILIO_PHONE_NUMBER=$number"
+  export TWILIO_PHONE_NUMBER=$number
+else
+  echo "You already have a number configured in .twilio. You may want to update this file with the new number."
+fi

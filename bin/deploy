@@ -1,17 +1,31 @@
 #!/bin/bash
 
-if [ "$#" -ne 1 ]; then
-  echo "Usage: deploy lambdaName";
-  exit 1;
+if [ -z "$1" ]; then
+  lambda="twilio-function"
+  dir=$lambda
+  echo "Deploying to twilio-function. Use bin/deploy <function-name> to deploy to a different function";
+else
+  lambda=$1
+  dir=$lambda
+  if [ ! -z "$2" ]; then
+    dir=$2
+  fi
 fi
 
-lambda=$1
 
 which aws &> /dev/null
 if [ ! $? -eq 0 ]; then
   echo "You need aws-cli to deploy this lambda. Google 'aws-cli install'"
   exit 1
 fi
+
+
+cd $dir
+if [ $? -gt 0 ]; then
+   echo "Error changing to directory $dir"
+   exit 1
+fi
+echo "Deploying from directory $(pwd)"
 
 rm archive.zip;
 

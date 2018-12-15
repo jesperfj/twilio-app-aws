@@ -1,0 +1,28 @@
+#!/bin/bash
+source .twilio
+
+if [ -z "$1" ]; then
+  echo "Usage: bin/release-number <number>"
+  echo "See your numbers with bin/numbers command"
+  exit 1
+else  
+  number=$1
+fi
+
+numbersid=$(curl -s "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/IncomingPhoneNumbers.json" \
+  -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN | \
+  jq -r ".incoming_phone_numbers[] | select(.phone_number==\"$number\") | .sid")
+
+if [ -z "$number" ]; then
+  echo "$number not found"
+  exit 1
+fi
+
+curl -f -X DELETE https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/IncomingPhoneNumbers/$numbersid.json \
+-u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN
+
+if [ $? -ne 0 ]; then
+  echo "Release failed."
+else
+  echo "Say goodbye. $number is no longer yours."
+fi

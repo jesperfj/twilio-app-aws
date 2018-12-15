@@ -82,22 +82,22 @@ async function makecall(event) {
 function ambient(event) {
     const VoiceResponse = require('twilio').twiml.VoiceResponse
     const response = new VoiceResponse()
-    response.say('This is the beginning')
+    response.say('Hi There')
     response.play({}, 'http://com.twilio.music.ambient.s3.amazonaws.com/gurdonark_-_Exurb.mp3')
     response.play({}, 'http://com.twilio.music.ambient.s3.amazonaws.com/aerosolspray_-_Living_Taciturn.mp3')
     response.play({}, 'http://com.twilio.music.ambient.s3.amazonaws.com/gurdonark_-_Plains.mp3')
-    response.say('This is the end')
+    response.say('Goodbye')
     return(response.toString())
 }
 
 function electronica(event) {
     const VoiceResponse = require('twilio').twiml.VoiceResponse
     const response = new VoiceResponse()
-    response.say('This is the beginning')
+    response.say('Hi There')
     response.play({}, 'http://com.twilio.music.electronica.s3.amazonaws.com/Kaer_Trouz_-_Seawall_Stepper.mp3')
     response.play({}, 'http://com.twilio.music.electronica.s3.amazonaws.com/spenceyb_-_O-T-S-H-T_%28Razma_World_IV_Remix%29.mp3')
     response.play({}, 'http://com.twilio.music.electronica.s3.amazonaws.com/teru_-_110_Downtempo_Electronic_4.mp3')
-    response.say('This is the end')
+    response.say('Goodbye')
     return(response.toString())
 }
 

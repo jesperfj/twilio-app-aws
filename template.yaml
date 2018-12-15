@@ -64,7 +64,7 @@ Resources:
             }
           }
       Description: "Twilio Callback Handler"
-      FunctionName: !Sub "${AWS::StackName}-router-function"
+      FunctionName: !Sub "${AWS::StackName}-function"
       Handler: "index.lambdaHandler"
       MemorySize: 128
       Role: !GetAtt "lambdaIAMRole.Arn"
@@ -144,6 +144,3 @@ Resources:
 Outputs:
   apiGatewayInvokeURL:
     Value: !Sub "https://${apiGateway}.execute-api.${AWS::Region}.amazonaws.com/p"
-
-  lambdaArn:
-    Value: !GetAtt "lambdaFunction.Arn"
