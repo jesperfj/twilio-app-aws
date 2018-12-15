@@ -22,19 +22,37 @@ echo $baseurl
 
 
 echo "Updating callback URLs for $number..."
-numbersid=$(curl -s "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/IncomingPhoneNumbers.json" -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN | jq -r ".incoming_phone_numbers[] | select(.phone_number==\"$number\") | .sid")
+numbersid=$(curl -s -f "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/IncomingPhoneNumbers.json" -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN | jq -r ".incoming_phone_numbers[] | select(.phone_number==\"$number\") | .sid")
+if [ $? -ne 0 ]; then
+  echo "Error looking up number. Wrong number?"
+  exit 1
+fi
 
-curl -X POST https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/IncomingPhoneNumbers/$numbersid.json \
+result=$(curl -s -f https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/IncomingPhoneNumbers/$numbersid.json \
 --data-urlencode "AccountSid=$TWILIO_ACCOUNT_SID" \
 --data-urlencode "SmsUrl=$baseurl/sms" \
 --data-urlencode "VoiceUrl=$baseurl/voice" \
 --data-urlencode "SmsFallbackUrl=$baseurl/fallback" \
 --data-urlencode "VoiceFallbackUrl=$baseurl/fallback" \
 --data-urlencode "StatusCallback=$baseurl/status" \
--u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN
-echo "Done."
+-u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN)
 
-if [ -z "$TWILIO_PHONE_NUMBER"]; then
+if [ $? -ne 0 ]; then
+  echo "Error stting up number."
+  exit 1
+fi
+
+
+echo "Done."
+echo "Callbacks:"
+echo "  SmsUrl=$baseurl/sms"
+echo "  VoiceUrl=$baseurl/voice"
+echo "  SmsFallbackUrl=$baseurl/fallback"
+echo "  VoiceFallbackUrl=$baseurl/fallback"
+echo "  StatusCallback=$baseurl/status"
+
+
+if [ -z "$TWILIO_PHONE_NUMBER" ]; then
   echo "It doesn't look like you have a TWILIO_PHONE_NUMBER in .twilio. Adding your new number"
   echo "TWILIO_PHONE_NUMBER=$number" >> .twilio
   echo "Setting environment variable TWILIO_PHONE_NUMBER=$number"

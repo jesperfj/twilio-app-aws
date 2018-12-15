@@ -31,12 +31,19 @@ number=$(curl -s -f https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_S
   -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN | jq -r .phone_number)
 
 if [ $? -ne 0 ]; then
-  echo "Failed."
-else
-  echo "Congrats! $number is now your phone number"
+  echo "Error buying number."
+  exit 1
 fi
 
-if [ -z "$TWILIO_PHONE_NUMBER"]; then
+echo "Congrats! $number is now your phone number"
+echo "Callbacks:"
+echo "  SmsUrl           = $baseurl/sms"
+echo "  VoiceUrl         = $baseurl/voice"
+echo "  SmsFallbackUrl   = $baseurl/fallback"
+echo "  VoiceFallbackUrl = $baseurl/fallback"
+echo "  StatusCallback   = $baseurl/status"
+
+if [ -z "$TWILIO_PHONE_NUMBER" ]; then
   echo "It doesn't look like you have a TWILIO_PHONE_NUMBER in .twilio. Adding your new number"
   echo "TWILIO_PHONE_NUMBER=$number" >> .twilio
   echo "Setting environment variable TWILIO_PHONE_NUMBER=$number"
