@@ -25,8 +25,8 @@ number=$(curl -s -f https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_S
   --data-urlencode "AreaCode=$prefix" \
   --data-urlencode "SmsUrl=$baseurl/sms" \
   --data-urlencode "VoiceUrl=$baseurl/voice" \
-  --data-urlencode "SmsFallbackUrl=$baseurl/fallback" \
-  --data-urlencode "VoiceFallbackUrl=$baseurl/fallback" \
+  --data-urlencode "SmsFallbackUrl=$baseurl/smsfallback" \
+  --data-urlencode "VoiceFallbackUrl=$baseurl/voicefallback" \
   --data-urlencode "StatusCallback=$baseurl/status" \
   -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN | jq -r .phone_number)
 
@@ -39,8 +39,8 @@ echo "Congrats! $number is now your phone number"
 echo "Callbacks:"
 echo "  SmsUrl           = $baseurl/sms"
 echo "  VoiceUrl         = $baseurl/voice"
-echo "  SmsFallbackUrl   = $baseurl/fallback"
-echo "  VoiceFallbackUrl = $baseurl/fallback"
+echo "  SmsFallbackUrl   = $baseurl/smsfallback"
+echo "  VoiceFallbackUrl = $baseurl/voicefallback"
 echo "  StatusCallback   = $baseurl/status"
 
 if [ -z "$TWILIO_PHONE_NUMBER" ]; then
