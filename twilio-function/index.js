@@ -48,25 +48,32 @@ function ok() {
  * 
  */
 exports.lambdaHandler = async (event, context) => {
-    console.log(JSON.stringify(context))
-    console.log(JSON.stringify(event))
+    console.log("Request received: "+JSON.stringify(event))
     if(event.path === '/call') {
         await makecall(event)
         return ok()
-    } else if(event.path === '/ambient') {
-        return rsp(ambient())
-    } else if(event.path === '/electronica') {
-        return rsp(electronica())
-    } else if(event.path === '/conference') {
-        return rsp(conference(event))
+    } else if(event.path === '/hellooutbound') {
+        return rsp(helloVoice(event))
+    } else if(event.path === '/sms') {
+        return rsp(helloSMS(event))
+    } else if(event.path === '/voice') {
+        return rsp(helloVoice(event))
+    } else if(event.path === '/smsfallback') {
+        return rsp(smsFallback(event))
+    } else if(event.path === '/voicefallback') {
+        return rsp(voiceFallback(event))
+    } else if(event.path === '/status') {
+        console.log("Callback status event: "+event)
+        return ok()
     } else {
-        return rsp('<?xml version="1.0" encoding="UTF-8"?><Response><Say>Hello Monkey</Say><Play>http://demo.twilio.com/hellomonkey/monkey.mp3</Play></Response>')
+        // Unknown path. Send voice response (could be wrong)
+        return rsp('<?xml version="1.0" encoding="UTF-8"?><Response><Say>Path not configured.</Say></Response>')
     }
 };
 
 async function makecall(event) {
     const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
-    const cb = "https://"+event.requestContext.domainName+'/'+event.queryStringParameters.then
+    const cb = "https://"+event.requestContext.domainName+'/hellooutbound'
     console.log("CALLBACK: "+cb)
     console.log("FROM PHONE: "+process.env.TWILIO_PHONE_NUMBER)
     console.log("TO PHONE: "+event.queryStringParameters.to)
@@ -79,34 +86,32 @@ async function makecall(event) {
     console.log("Call initiated: "+call.sid)
 }
 
-function ambient(event) {
+function helloVoice(event) {
     const VoiceResponse = require('twilio').twiml.VoiceResponse
     const response = new VoiceResponse()
-    response.say('Hi There')
+    response.say("Hello there. Let's play some music!")
     response.play({}, 'http://com.twilio.music.ambient.s3.amazonaws.com/gurdonark_-_Exurb.mp3')
-    response.play({}, 'http://com.twilio.music.ambient.s3.amazonaws.com/aerosolspray_-_Living_Taciturn.mp3')
-    response.play({}, 'http://com.twilio.music.ambient.s3.amazonaws.com/gurdonark_-_Plains.mp3')
     response.say('Goodbye')
     return(response.toString())
 }
 
-function electronica(event) {
-    const VoiceResponse = require('twilio').twiml.VoiceResponse
-    const response = new VoiceResponse()
-    response.say('Hi There')
-    response.play({}, 'http://com.twilio.music.electronica.s3.amazonaws.com/Kaer_Trouz_-_Seawall_Stepper.mp3')
-    response.play({}, 'http://com.twilio.music.electronica.s3.amazonaws.com/spenceyb_-_O-T-S-H-T_%28Razma_World_IV_Remix%29.mp3')
-    response.play({}, 'http://com.twilio.music.electronica.s3.amazonaws.com/teru_-_110_Downtempo_Electronic_4.mp3')
-    response.say('Goodbye')
+function helloSMS(event) {
+    const MessagingResponse = require('twilio').twiml.MessagingResponse;
+    const response = new MessagingResponse();
+    response.message().body('Hello World!');
     return(response.toString())
 }
 
-function conference(event) {
-    console.log("Sending someone into conference")
+function smsFallback(event) {
+    const MessagingResponse = require('twilio').twiml.MessagingResponse;
+    const response = new MessagingResponse();
+    response.message().body('Ooops. Something went wrong. Sorry.');
+    return(response.toString())
+}
+
+function voiceFallback(event) {
     const VoiceResponse = require('twilio').twiml.VoiceResponse
     const response = new VoiceResponse()
-    response.dial().conference("MyConference", {
-        startConferenceOnEnter: true
-    })
+    response.say("Sorry. Something went wrong.")
     return(response.toString())
 }
