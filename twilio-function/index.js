@@ -1,18 +1,3 @@
-function rsp(body) {
-    return {
-        'statusCode': 200,
-        'body': body,
-        'headers': {'Content-Type': 'application/xml'}
-    }
-}
-
-function ok() {
-    return {
-        'statusCode': 200,
-        'body': 'OK'
-    }
-}
-
 /**
  *
  * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
@@ -48,37 +33,45 @@ function ok() {
  * 
  */
 exports.lambdaHandler = async (event, context) => {
-    console.log("Request received: "+JSON.stringify(event))
-    if(event.path === '/call') {
-        await makecall(event)
-        return ok()
-    } else if(event.path === '/hellooutbound') {
-        return rsp(helloVoice(event))
-    } else if(event.path === '/sms') {
-        return rsp(helloSMS(event))
-    } else if(event.path === '/voice') {
-        return rsp(helloVoice(event))
-    } else if(event.path === '/smsfallback') {
-        return rsp(smsFallback(event))
-    } else if(event.path === '/voicefallback') {
-        return rsp(voiceFallback(event))
-    } else if(event.path === '/status') {
-        console.log("Callback status event: "+event)
-        return ok()
-    } else {
-        // Unknown path. Send voice response (could be wrong)
-        return rsp('<?xml version="1.0" encoding="UTF-8"?><Response><Say>Path not configured.</Say></Response>')
+    try {
+        console.log("Request received: "+JSON.stringify(event))
+        if(event.path === '/call') {
+            await makecall(event)
+            return ok()
+        } else if(event.path === '/hellooutbound') {
+            return rsp(helloVoice(event))
+        } else if(event.path === '/sms') {
+            return rsp(helloSMS(event))
+        } else if(event.path === '/voice') {
+            return rsp(helloVoice(event))
+        } else if(event.path === '/smsfallback') {
+            return rsp(smsFallback(event))
+        } else if(event.path === '/voicefallback') {
+            return rsp(voiceFallback(event))
+        } else if(event.path === '/status') {
+            console.log("Callback status event: "+event)
+            return ok()
+        } else {
+            // Unknown path. Send voice response (could be wrong)
+            return rsp('<?xml version="1.0" encoding="UTF-8"?><Response><Say>Path not configured.</Say></Response>')
+        }
+    } catch(exception) {
+        console.log("Exception raised when executing Lambda: "+exception)
+        return {
+            statusCode: 500,
+            body: exception.toString()
+        }
     }
-};
+}
 
 async function makecall(event) {
     const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
-    const cb = "https://"+event.requestContext.domainName+'/hellooutbound'
+    //const cb = "https://"+event.requestContext.domainName+'/p/hellooutbound'
+    const cb = baseurl(event)+"/hellooutbound"
     console.log("CALLBACK: "+cb)
     console.log("FROM PHONE: "+process.env.TWILIO_PHONE_NUMBER)
     console.log("TO PHONE: "+event.queryStringParameters.to)
-    const call = await client.calls
-        .create({
+    const call = await client.calls.create({
             url: cb,
             to: event.queryStringParameters.to,
             from: process.env.TWILIO_PHONE_NUMBER
@@ -114,4 +107,28 @@ function voiceFallback(event) {
     const response = new VoiceResponse()
     response.say("Sorry. Something went wrong.")
     return(response.toString())
+}
+
+// Helper functions
+
+function rsp(body) {
+    return {
+        'statusCode': 200,
+        'body': body,
+        'headers': {'Content-Type': 'application/xml'}
+    }
+}
+
+function ok() {
+    return {
+        'statusCode': 200,
+        'body': 'OK'
+    }
+}
+
+// Getting the base URL for an API gateway request is a little tricky. event.path
+// does not contain the stage part. event.requestContext.path has everything.
+function baseurl(event) {
+    return "https://"+event.requestContext.domainName+
+        event.requestContext.path.substring(0,event.requestContext.path.length-event.path.length)
 }

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  days=90
+else
+  days=$1
+fi
+
+gwgroup=$(aws cloudformation describe-stacks --query 'Stacks[?StackName==`twilio`].Outputs[0].OutputValue' --output text \
+| sed -e 's/^https:\/\/\([^\.]*\).*$/API-Gateway-Execution-Logs_\1\/p/g')
+
+echo "Setting log retention to $days days for log groups $gwgroup and /aws/lambda/twilio-function"
+
+aws logs put-retention-policy --log-group-name $gwgroup --retention-in-days $days
+aws logs put-retention-policy --log-group-name /aws/lambda/twilio-function --retention-in-days $days
+
+echo "Done."

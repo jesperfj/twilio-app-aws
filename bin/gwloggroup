@@ -1,0 +1,4 @@
+#!/bin/bash
+
+aws cloudformation describe-stacks --query 'Stacks[?StackName==`twilio`].Outputs[0].OutputValue' --output text \
+| sed -e 's/^https:\/\/\([^\.]*\).*$/API-Gateway-Execution-Logs_\1\/p/g'

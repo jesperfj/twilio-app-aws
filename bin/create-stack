@@ -1,8 +1,8 @@
 #!/bin/bash
-if [ "$#" -ne 1 ]; then
+if [ -z "$1" ]; then
   stackname="twilio"
 else
   stackname=$1
 fi
-aws cloudformation create-stack --stack-name $1 --template-body file://template.yaml \
+aws cloudformation create-stack --stack-name $stackname --template-body file://template.yaml \
                                 --capabilities CAPABILITY_IAM

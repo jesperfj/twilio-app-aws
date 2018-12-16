@@ -1,5 +1,5 @@
 {
-  "name": "twilio-callback-router",
+  "name": "twilio-function",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",

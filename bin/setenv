@@ -1,11 +1,11 @@
 #!/bin/bash
-if [ "$#" -ne 1 ]; then
+if [ -z "$1" ]; then
   lambda="twilio-function"
   echo "Applying to function twilio-function. Use bin/setenv <function-name> to apply to a different function";
 else
   lambda=$1
 fi
-output=$(aws lambda update-function-configuration --function-name $1 --environment Variables="{`cat .twilio | xargs | sed 's/ /,/g'`}")
+output=$(aws lambda update-function-configuration --function-name $lambda --environment Variables="{`cat .twilio | xargs | sed 's/ /,/g'`}")
 
 if [ $? -eq 0 ]; then
   echo "Environment updated"

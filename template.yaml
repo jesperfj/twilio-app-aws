@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Twilio Gateway"
+Description: "Twilio Application Framework"
 
 Resources:
   apiGateway:
@@ -110,13 +110,13 @@ Resources:
                   - "logs:PutLogEvents"
                 Effect: "Allow"
                 Resource:
-                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-router-function:*"
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}-function:*"
           PolicyName: "lambda"
 
   gatewayLogGroup:
     Type: "AWS::Logs::LogGroup"
     Properties:
-      LogGroupName: !Sub "/${AWS::StackName}"
+      LogGroupName: !Sub "/${AWS::StackName}-gateway-access-log"
       RetentionInDays: 90
 
   apiGatewayProductionStage:

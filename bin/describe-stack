@@ -5,4 +5,4 @@ else
   stackname=$1
 fi
 
-aws cloudformation describe-stacks --query "Stacks[?StackName==\`$1\`]"
+aws cloudformation describe-stacks --query "Stacks[?StackName==\`$stackname\`]"
