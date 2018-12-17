@@ -90,7 +90,7 @@ Viewing logs using just AWS CLI is cumbersome. Instead, use a dedicated tool lik
 
 # View API Gateway logs
 
-To view the logs from API Gateway you must first grant permission for the AWS API Gateway service to write logs to CloudWatch. This is a one-time configuration for your AWS Account, so you may already have done it. Once configured, you can tail logs with
+To view the logs from API Gateway [you must first grant permission for the AWS API Gateway service to write logs to CloudWatch](https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-logging.html). This is a one-time configuration for your AWS Account, so you may already have done it. Once configured, you can tail logs with
 
     awslogs get -G $(bin/gwloggroup) -w
 
