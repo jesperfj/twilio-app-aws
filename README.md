@@ -54,17 +54,13 @@ You can get a list of your existing numbers with:
 
     bin/numbers
 
-# Package and deploy the function
+# Deploy the function
 
-First grab the dependencies:
-
-    (cd twilio-function; npm install)
-
-Then deploy the function code with
+Deploy the function code with
 
     bin/deploy
 
-(Standing in the root of this project directory). Finally, set the environment for the function with
+Set the environment for the function with
 
     bin/setenv
 

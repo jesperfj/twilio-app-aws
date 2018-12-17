@@ -25,6 +25,13 @@ if [ $? -gt 0 ]; then
    echo "Error changing to directory $dir"
    exit 1
 fi
+
+if [ ! -e node_modules ]; then
+  echo "No node_modules directory. Running npm install"
+  npm install
+fi
+
+
 echo "Deploying from directory $(pwd)"
 
 rm archive.zip;
