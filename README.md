@@ -76,7 +76,11 @@ Then deploy the function code with
 
 # Make a change and redeploy
 
-You can find the function code in `twilio-function/index.js`.
+You can find the function code in [`twilio-function/index.js`](twilio-function/index.js). E.g. try change the response message in `helloSMS()`. Now redeploy with
+
+    bin/deploy
+
+It is as simple as that. Just remember to run `npm install` in the `twilio-function` directory if you are introducing new dependencies. 
 
 # View function logs
 

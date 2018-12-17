@@ -91,7 +91,7 @@ function helloVoice(event) {
 function helloSMS(event) {
     const MessagingResponse = require('twilio').twiml.MessagingResponse;
     const response = new MessagingResponse();
-    response.message().body('Hello World!');
+    response.message().body('Hello World Again!');
     return(response.toString())
 }
 
