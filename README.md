@@ -13,7 +13,7 @@ The baseline template in this repo follows best practices for production systems
 
 * [Create account if you don't have one](https://www.twilio.com/try-twilio)
 
-After you have created an account, grab your Twilio account SID and authentication token from this console page and same them in .twilio in this directory. Example:
+After you have created an account, grab your Twilio account SID and authentication token from this console page and same them in a file named `.twilio` in this directory. Example:
 
 ```
 $ cat .twilio
@@ -56,12 +56,15 @@ You can get a list of your existing numbers with:
 
 # Package and deploy the function
 
-Deploy the function code with
+First grab the dependencies:
 
     (cd twilio-function; npm install)
+
+Then deploy the function code with
+
     bin/deploy
 
-Set the environment for the function with
+(Standing in the root of this project directory). Finally, set the environment for the function with
 
     bin/setenv
 
@@ -73,7 +76,7 @@ Set the environment for the function with
 
 # Make a change and redeploy
 
-You can find the function code in `twilio-function/index.js`
+You can find the function code in `twilio-function/index.js`.
 
 # View function logs
 
@@ -94,3 +97,9 @@ To view the logs from API Gateway you must first grant permission for the AWS AP
 By default, logs will never get deleted. You can set log retention for the Gateway and Lambda Log Groups with this helper script:
 
     bin/set-log-retention <days>
+
+# TODO
+
+* Add request validation for callbacks
+* Add token authorization for REST API calls
+
