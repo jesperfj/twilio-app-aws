@@ -1,3 +1,6 @@
+var cc = require("./contactcenter.js")
+var testnumber = require("./testnumber.js")
+
 /**
  *
  * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
@@ -35,7 +38,13 @@
 exports.lambdaHandler = async (event, context) => {
     try {
         console.log("Request received: "+JSON.stringify(event))
-        if(event.path === '/call') {
+        if(event.path.startsWith("/cc")) {
+            console.log("Contact Center request")
+            return cc.route(event,context)
+        } else if(event.path.startsWith("/testnumber")) {
+            console.log("Test number request")
+            return testnumber.route(event,context)
+        } else if(event.path === '/call') {
             await makecall(event)
             return ok()
         } else if(event.path === '/hellooutbound') {
@@ -66,7 +75,6 @@ exports.lambdaHandler = async (event, context) => {
 
 async function makecall(event) {
     const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
-    //const cb = "https://"+event.requestContext.domainName+'/p/hellooutbound'
     const cb = baseurl(event)+"/hellooutbound"
     console.log("CALLBACK: "+cb)
     console.log("FROM PHONE: "+process.env.TWILIO_PHONE_NUMBER)
