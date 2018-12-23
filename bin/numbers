@@ -2,4 +2,6 @@
 source .twilio
 
 echo "Your Twilio Numbers:"
-curl -s "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/IncomingPhoneNumbers.json" -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN | jq -r '.incoming_phone_numbers[].phone_number'
+curl -s "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/IncomingPhoneNumbers.json" \
+     -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN \
+     | jq -r '.incoming_phone_numbers[] | [.phone_number, .friendly_name] | "\(.[0])\t\(.[1])"'

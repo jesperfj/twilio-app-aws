@@ -2,7 +2,7 @@
 source .twilio
 
 if [ -z "$1" ]; then
-  echo "Usage: bin/setup-number <number> [base url]"
+  echo "Usage: bin/setup-number <number> [base url] [friendly name]"
   exit 1
 else
   number=$1
@@ -17,7 +17,11 @@ else
     fi
   fi
 fi
-echo $baseurl
+if [ -z "$3" ]; then
+  friendlyname="TwilioApplicationFrameworkDevNumber"
+else 
+  friendlyname=$3
+fi
 
 
 
@@ -29,13 +33,14 @@ if [ $? -ne 0 ]; then
 fi
 
 result=$(curl -s -f https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/IncomingPhoneNumbers/$numbersid.json \
---data-urlencode "AccountSid=$TWILIO_ACCOUNT_SID" \
---data-urlencode "SmsUrl=$baseurl/sms" \
---data-urlencode "VoiceUrl=$baseurl/voice" \
---data-urlencode "SmsFallbackUrl=$baseurl/smsfallback" \
---data-urlencode "VoiceFallbackUrl=$baseurl/voicefallback" \
---data-urlencode "StatusCallback=$baseurl/status" \
--u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN)
+  --data-urlencode "AccountSid=$TWILIO_ACCOUNT_SID" \
+  --data-urlencode "FriendlyName=$friendlyname" \
+  --data-urlencode "SmsUrl=$baseurl/sms" \
+  --data-urlencode "VoiceUrl=$baseurl/voice" \
+  --data-urlencode "SmsFallbackUrl=$baseurl/smsfallback" \
+  --data-urlencode "VoiceFallbackUrl=$baseurl/voicefallback" \
+  --data-urlencode "StatusCallback=$baseurl/status" \
+  -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN)
 
 if [ $? -ne 0 ]; then
   echo "Error stting up number."

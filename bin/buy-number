@@ -16,12 +16,17 @@ if [ -z "$2" ]; then
 else
   prefix=$2
 fi
+if [ -z "$3" ]; then
+  friendlyname="TwilioApplicationFrameworkDevNumber"
+else 
+  friendlyname=$3
+fi
 
 echo "Buying number in area code $prefix with callback base url $baseurl"
 
 number=$(curl -s -f https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/IncomingPhoneNumbers.json \
   --data-urlencode "AccountSid=$TWILIO_ACCOUNT_SID" \
-  --data-urlencode "FriendlyName=TwilioApplicationFrameworkDevNumber" \
+  --data-urlencode "FriendlyName=$friendlyname" \
   --data-urlencode "AreaCode=$prefix" \
   --data-urlencode "SmsUrl=$baseurl/sms" \
   --data-urlencode "VoiceUrl=$baseurl/voice" \
