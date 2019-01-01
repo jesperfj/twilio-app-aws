@@ -1,0 +1,30 @@
+#!/bin/bash
+source .twilio
+
+if [ -z "$1" ]; then
+  echo "Usage: bin/number <number>"
+  exit 1
+else
+  number=$1
+fi
+
+numbersid=$(curl -s -f "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/IncomingPhoneNumbers.json" -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN | jq -r ".incoming_phone_numbers[] | select(.phone_number==\"$number\") | .sid")
+if [ $? -ne 0 ]; then
+  echo "Error looking up number. Wrong number?"
+  exit 1
+fi
+
+result=$(curl -s -f https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/IncomingPhoneNumbers/$numbersid.json \
+  -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN)
+
+if [ $? -ne 0 ]; then
+  echo "Error getting details for number: $result"
+  exit 1
+fi
+
+echo "  Friendly name:  $(echo $result | jq -r .friendly_name)"
+echo "  SMS:            $(echo $result | jq -r .sms_url) ($(echo $result | jq -r .sms_method))"
+echo "  SMS fallback:   $(echo $result | jq -r .sms_fallback_url) ($(echo $result | jq -r .sms_fallback_method))"
+echo "  Voice:          $(echo $result | jq -r .voice_url) ($(echo $result | jq -r .voice_method))"
+echo "  Voice fallback: $(echo $result | jq -r .voice_fallback_url) ($(echo $result | jq -r .voice_fallback_method))"
+echo "  Status:         $(echo $result | jq -r .status_callback) ($(echo $result | jq -r .status_callback_method))"

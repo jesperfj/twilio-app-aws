@@ -1,0 +1,8 @@
+#!/bin/bash
+if [ -z "$1" ]; then
+  lambda="twilio-function"
+  echo "Getting environment for function 'twilio-function'. Use bin/getenv <function-name> to get environment for a different function";
+else
+  lambda=$1
+fi
+aws lambda get-function-configuration --function-name $lambda
