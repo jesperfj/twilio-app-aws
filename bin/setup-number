@@ -36,10 +36,15 @@ result=$(curl -s -f https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_S
   --data-urlencode "AccountSid=$TWILIO_ACCOUNT_SID" \
   --data-urlencode "FriendlyName=$friendlyname" \
   --data-urlencode "SmsUrl=$baseurl/sms" \
+  --data-urlencode "SmsMethod=GET" \
   --data-urlencode "VoiceUrl=$baseurl/voice" \
+  --data-urlencode "VoiceMethod=GET" \
   --data-urlencode "SmsFallbackUrl=$baseurl/smsfallback" \
+  --data-urlencode "SmsFallbackMethod=GET" \
   --data-urlencode "VoiceFallbackUrl=$baseurl/voicefallback" \
+  --data-urlencode "VoiceFallbackMethod=GET" \
   --data-urlencode "StatusCallback=$baseurl/status" \
+  --data-urlencode "StatusCallbackMethod=GET" \
   -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN)
 
 if [ $? -ne 0 ]; then
