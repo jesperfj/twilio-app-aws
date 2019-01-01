@@ -9,8 +9,8 @@ else
 fi
 
 numbersid=$(curl -s -f "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/IncomingPhoneNumbers.json" -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN | jq -r ".incoming_phone_numbers[] | select(.phone_number==\"$number\") | .sid")
-if [ $? -ne 0 ]; then
-  echo "Error looking up number. Wrong number?"
+if [[ $? -ne 0 || $numbersid = "" ]]; then
+  echo "Error looking up number. Wrong number? You must use full E.164 notation with plus-country-code and all."
   exit 1
 fi
 
